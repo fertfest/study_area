@@ -293,9 +293,18 @@ def make_averaged(original_function, trials_count=1000):
     >>> averaged_dice = make_averaged(dice, 1000)
     >>> averaged_dice()
     3.0
-    """
+     """
     # BEGIN PROBLEM 8
     "*** YOUR CODE HERE ***"
+    def f(*args):
+        k = 0
+        total = 0
+        while k < trials_count:
+            one_result = original_function(*args)
+            total += one_result
+            k += 1
+        return total /  trials_count
+    return f
     # END PROBLEM 8
 
 
@@ -310,6 +319,17 @@ def max_scoring_num_rolls(dice=six_sided, trials_count=1000):
     """
     # BEGIN PROBLEM 9
     "*** YOUR CODE HERE ***"
+    max = 0
+    result = 0
+    k = 1
+    while k <= 10:
+        do_average = make_averaged(roll_dice, trials_count)
+        this_average = do_average(k, dice)
+        if this_average > max:
+            max = this_average
+            result = k
+        k += 1
+    return result
     # END PROBLEM 9
 
 
@@ -359,7 +379,9 @@ def bacon_strategy(score, opponent_score, cutoff=8, num_rolls=6):
     rolls NUM_ROLLS otherwise.
     """
     # BEGIN PROBLEM 10
-    return 6  # Replace this statement
+    if 10 - opponent_score % 10 + opponent_score // 10 % 10 >= cutoff:
+        return 0
+    return num_rolls  # Replace this statement
     # END PROBLEM 10
 
 
@@ -369,7 +391,21 @@ def swap_strategy(score, opponent_score, cutoff=8, num_rolls=6):
     non-beneficial swap. Otherwise, it rolls NUM_ROLLS.
     """
     # BEGIN PROBLEM 11
-    return 6  # Replace this statement
+    bacon_score = 10 - opponent_score % 10 + opponent_score // 10 % 10
+    if_bacon_score = score + bacon_score
+    if_swap_score = score
+    whether_swap = False
+    if abs(if_bacon_score % 10 - opponent_score % 10) == opponent_score // 10 % 10:
+        if_swap_score = opponent_score
+        whether_swap = True
+    if whether_swap:
+        if if_swap_score > if_bacon_score:
+            return 0
+        else:
+            return num_rolls
+    if not whether_swap and bacon_score >= cutoff:
+        return 0
+    return num_rolls  # Replace this statement
     # END PROBLEM 11
 
 
