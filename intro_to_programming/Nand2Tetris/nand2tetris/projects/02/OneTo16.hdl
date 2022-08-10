@@ -1,0 +1,13 @@
+/*
+ * convert a single-line input to 16 lines
+ * each line has the same value as input.
+ */
+
+CHIP OneTo16 {
+	IN in;
+	OUT out[16];
+
+	PARTS:
+	Not (in=in, out=not);
+	Not16 (in[0]=not, in[1]=not,in[2]=not,in[3]=not,in[4]=not,in[5]=not,in[6]=not,in[7]=not,in[8]=not,in[9]=not,in[10]=not,in[11]=not,in[12]=not,in[13]=not,in[14]=not,in[15]=not,out=out);
+}
