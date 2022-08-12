@@ -17,4 +17,17 @@ CHIP PC {
 
     PARTS:
     // Put your code here:
+	Or (a=reset, b=load, out=resetOrload);
+	Or (a=resetOrload, b=inc, out=loadReg);	
+
+	Register (in=inReg, load=loadReg, out=out, out=out1);
+	
+	Inc16 (in=out1, out=inced);
+	Not (in=load, out=notload);
+	And (a=notload, b=inc, out=notloadAndinc);
+	Mux16 (a=in, b=inced, sel=notloadAndinc, out=inMuxinced);
+
+	Not (in=reset, out=notreset);
+	OneTo16 (in=notreset, out=notreset16);
+	And16 (a=notreset16, b=inMuxinced, out=inReg);
 }
