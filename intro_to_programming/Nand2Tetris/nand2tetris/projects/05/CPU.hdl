@@ -26,7 +26,15 @@
  */
 
 CHIP CPU {
-
+	// ixxaccccccdddjjj
+	// i==0 A instruction 
+	// all bits but the highest bit are address bits
+	// else C instruction
+	// *xx is not used* 
+	// ddd - where to store the computed result
+	// jjj - jump 
+	// a==0 A and D
+	// a==1 M and D
     IN  inM[16],         // M value input  (M = contents of RAM[A])
         instruction[16], // Instruction for execution
         reset;           // Signals whether to re-start the current
@@ -40,4 +48,32 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+	Mux16 (a=instruction, b=aluOutput, sel=instruction[15], out=insAOrC);
+	Not (in=instruction[15], out=noti);
+	Or (a=instruction[5], b=noti, out=d1Ori);	
+	ARegister (in=insAOrC, load= d1Ori, out=aOut, out[0..14]=addressM);	
+
+	Mux16 (a=aOut, b=inM, sel=instruction[12], out=aluY);
+	ALU (x=aluX, y=aluY, zx=instruction[11], nx=instruction[10], zy=instruction[9],
+		 ny=instruction[8], f=instruction[7], no=instruction[6], out=aluOutput, zr=zr,
+		 ng=ng, out=outM);
+
+	And (a=instruction[15], b=instruction[3], out=writeM);
+	And (a=instruction[4], b=instruction[15], out=loadDRegister);
+	DRegister (in=aluOutput, load=loadDRegister,  out=aluX);
+
+	Not (in=zr, out=notzr);
+	Not (in=ng, out=notng);
+	And (a=notzr, b=notng, out=positive);
+	And (a=zr, b=notng, out=equal);
+	And (a=notzr, b=ng, out=negative);	
+	And (a=positive, b=instruction[0], out=posJMP);
+	And (a=equal, b=instruction[1], out=equalJMP);
+	And (a=negative, b=instruction[2], out=negJMP);
+	Or (a=posJMP, b=equalJMP, out=posorequalJMP);
+	Or (a=posorequalJMP, b=negJMP, out=shouldJMP);
+	And (a=shouldJMP, b=instruction[15], out=jmp);
+
+	PC (in=aOut, inc=true, load=jmp, reset=reset, out[0..14]=pc); 
+	
 }
